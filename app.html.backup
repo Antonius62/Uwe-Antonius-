@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lars vom Mars</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url('mars_background.png');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px black;
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255,255,255,0.5);
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .login-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,192,203,0.6) !important;
+            width: 100px !important;
+            height: 100px !important;
+            font-size: 16px !important;  
+            z-index: 1000;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-background {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .lyrics-container {
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px;
+            width: 80%;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            text-align: center;
+            font-size: 1.8em;
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            position: fixed;
+            bottom: 250px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .lyrics-container.visible {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lyrics-line {
+            animation: fadeIn 2s ease-out forwards;
+            opacity: 0;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 40px;
+            margin: 20px;
+            margin-bottom: 50px;
+            position: fixed;
+            bottom: 20px;  
+        }
+
+        .button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+            color: black;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+        }
+
+        .button.audiobook {
+            background: rgba(255,255,0,0.6);  
+        }
+
+        .button.video {
+            background: rgba(173,216,230,0.6);
+        }
+
+        .button.music {
+            background: rgba(255,160,160,0.6);
+        }
+
+        .button.sounds {
+            background: rgba(144,238,144,0.6);
+        }
+
+        /* Hauptblasen-Animation */
+        @keyframes mainBubbleFloat {
+            0% {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            20% {
+                transform: translate(-50%, 50%);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -150%);
+                opacity: 0;
+            }
+        }
+
+        /* Animation für Kapitel-Blasen */
+        @keyframes bubbleRiseInside {
+            0% {
+                transform: translateY(120%) scale(0.8);
+                opacity: 0;
+            }
+            20% {
+                transform: translateY(60%) scale(0.9);
+                opacity: 1;
+            }
+            80% {
+                transform: translateY(-60%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120%) scale(0.9);
+                opacity: 0;
+            }
+        }
+
+        .content-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, 
+                rgba(224,195,252,0.5) 0%, 
+                rgba(142,197,252,0.5) 100%
+            );
+            padding: 25px;
+            border-radius: 50%;
+            box-shadow: 
+                0 10px 20px rgba(0,0,0,0.1),
+                inset 0 0 100px rgba(255,255,255,0.5);
+            z-index: 100;
+            width: 54vh;
+            height: 54vh;
+            animation: mainBubbleFloat 25s ease-in-out infinite;
+            border: 8px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+
+        .chapter-item {
+            position: relative;
+            background: linear-gradient(45deg, rgba(255,154,158,0.4) 0%, rgba(250,208,196,0.4) 100%);
+            padding: 15px;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            margin: 10px;
+            cursor: pointer;
+            animation: bubbleRiseInside 20s ease-in-out infinite;
+            border: 4px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Unterschiedliche Startpositionen für die Kapitel-Blasen */
+        .chapter-item:nth-child(1) {
+            animation-delay: 2s;
+            left: -10%;
+        }
+
+        .chapter-item:nth-child(2) {
+            animation-delay: 5s;
+            left: 10%;
+        }
+
+        .chapter-item:nth-child(3) {
+            animation-delay: 8s;
+            left: -5%;
+        }
+
+        .chapter-number {
+            font-size: 2em;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+
+        .chapter-info {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .chapter-item:hover .chapter-info {
+            opacity: 1;
+        }
+
+        .chapter-title {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .audio-player {
+            background: rgba(255,255,255,0.8);
+            padding: 15px;
+            border-radius: 25px;
+            margin: 15px auto;
+            text-align: center;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(5px);
+            width: 90%;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .audio-button {
+            background: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .audio-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: white;
+            border: none;
+            color: #8ec5fc;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .close-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .now-playing {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .chapter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <button class="button login-button" onclick="showModal('loginModal')">Eltern<br>Login</button>
+    
+    <div class="modal-background" id="modalBackground"></div>
+    
+    <div class="modal" id="loginModal">
+        <h2>Eltern Login</h2>
+        <p>Dieser Bereich wird vorbereitet...</p>
+        <button onclick="closeModal('loginModal')">Schließen</button>
+    </div>
+
+    <div class="lyrics-container"></div>
+
+    <div class="buttons">
+        <button class="button audiobook" onclick="handleButtonClick('audiobook')">Hörbuch</button>
+        <button class="button video" onclick="handleButtonClick('video')">Video</button>
+        <button class="button music" onclick="handleButtonClick('music')">Musik</button>
+        <button class="button sounds" onclick="handleButtonClick('sounds')">Action</button>
+    </div>
+
+    <div class="content-modal" id="audiobookModal">
+        <button class="close-button" onclick="closeModal('audiobookModal')">×</button>
+        
+        <div class="audio-player" id="chapterPlayer">
+            <div class="now-playing">Kapitel wird geladen...</div>
+            <div class="audio-controls">
+                <button class="audio-button" onclick="toggleChapter()">▶️</button>
+                <button class="audio-button" onclick="stopChapter()">⏹️</button>
+            </div>
+        </div>
+
+        <div class="chapter-container">
+            <div class="chapter-item" data-chapter="1">
+                <div class="chapter-number">1</div>
+                <div class="chapter-info">
+                    <div class="chapter-title">Lars startet zur Erde</div>
+                </div>
+            </div>
+            
+            <div class="chapter-item" data-chapter="2">
+                <div class="chapter-number">2</div>
+                <div class="chapter-info">
+                    <div class="chapter-title">Lars im Raumschiff</div>
+                </div>
+            </div>
+            
+            <div class="chapter-item" data-chapter="3">
+                <div class="chapter-number">3</div>
+                <div class="chapter-info">
+                    <div class="chapter-title">Lars trifft einen Stern</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-modal" id="videoModal">
+        <button class="close-button" onclick="closeModal('videoModal')">×</button>
+        <h2>Video-Bereich</h2>
+        <p>Hier kommen bald tolle Videos!</p>
+    </div>
+
+    <script>
+        // Audio-Variablen initialisieren
+        let audioPlayer = null;
+        let isPlaying = false;
+        let soundIsPlaying = false;
+        let chapterAudio = null;
+        let chapterPlaying = false;
+
+        // Quack-Sound initialisieren
+        const quackSound = new Audio('./quack_sound.mp3');
+
+        // Button-Klick-Handler
+        function handleButtonClick(type) {
+            if (type === 'music') {
+                toggleMusic();
+            } else if (type === 'sounds') {
+                playQuackSound();
+            } else if (type === 'audiobook') {
+                showModal('audiobookModal');
+            } else if (type === 'video') {
+                showModal('videoModal');
+            }
+        }
+
+        // Quack-Sound abspielen
+        function playQuackSound() {
+            if (soundIsPlaying) {
+                quackSound.pause();
+                quackSound.currentTime = 0;
+                soundIsPlaying = false;
+            } else {
+                quackSound.play().catch(error => {
+                    console.error('Fehler beim Abspielen:', error);
+                    alert('Ups! Der Sound konnte nicht abgespielt werden.');
+                });
+                soundIsPlaying = true;
+                setTimeout(() => {
+                    quackSound.pause();
+                    quackSound.currentTime = 0;
+                    soundIsPlaying = false;
+                }, 10000);
+            }
+        }
+
+        // Musik abspielen/pausieren
+        function toggleMusic() {
+            if (!audioPlayer) {
+                audioPlayer = new Audio('./lars_vom_mars_song.wav');
+            }
+            
+            if (isPlaying) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+                isPlaying = false;
+                document.querySelector('.lyrics-container').textContent = '';
+                document.querySelector('.lyrics-container').classList.remove('visible');
+                if (window.timeouts) {
+                    window.timeouts.forEach(timeout => clearTimeout(timeout));
+                }
+            } else {
+                audioPlayer.play().catch(error => {
+                    console.error('Fehler beim Abspielen:', error);
+                    alert('Ups! Die Musik konnte nicht abgespielt werden.');
+                });
+                isPlaying = true;
+                window.timeouts = [];
+
+                const container = document.querySelector('.lyrics-container');
+                container.innerHTML = '';
+                container.classList.add('visible');
+
+                // Liedtext-Animation...
+                // (Der Rest des Liedtext-Codes bleibt unverändert)
+            }
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'block';
+            modal.classList.remove('paused');
+            
+            document.querySelectorAll('.chapter-item').forEach(item => {
+                item.style.animationPlayState = 'running';
+            });
+
+            document.getElementById('modalBackground').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+            document.getElementById('modalBackground').style.display = 'none';
+            
+            if (chapterAudio) {
+                chapterAudio.pause();
+                chapterAudio.currentTime = 0;
+                chapterPlaying = false;
+                document.querySelector('.audio-button').textContent = '▶️';
+            }
+        }
+
+        function playChapter(chapterNum) {
+            if (chapterAudio) {
+                chapterAudio.pause();
+                chapterAudio.currentTime = 0;
+            }
+
+            const player = document.getElementById('chapterPlayer');
+            player.style.display = 'block';
+
+            chapterAudio = new Audio(`./chapter${chapterNum}.mp3`);
+            document.querySelector('.now-playing').textContent = `Kapitel ${chapterNum} wird abgespielt`;
+            
+            chapterAudio.play().catch(error => {
+                console.error('Fehler beim Abspielen:', error);
+                alert('Ups! Das Kapitel konnte nicht abgespielt werden.');
+            });
+            chapterPlaying = true;
+            document.querySelector('.audio-button').textContent = '⏸️';
+        }
+
+        function toggleChapter() {
+            if (!chapterAudio) return;
+
+            if (chapterPlaying) {
+                chapterAudio.pause();
+                chapterPlaying = false;
+                document.querySelector('.audio-button').textContent = '▶️';
+            } else {
+                chapterAudio.play().catch(error => {
+                    console.error('Fehler beim Abspielen:', error);
+                    alert('Ups! Das Kapitel konnte nicht abgespielt werden.');
+                });
+                chapterPlaying = true;
+                document.querySelector('.audio-button').textContent = '⏸️';
+            }
+        }
+
+        function stopChapter() {
+            if (!chapterAudio) return;
+            
+            chapterAudio.pause();
+            chapterAudio.currentTime = 0;
+            chapterPlaying = false;
+            document.querySelector('.audio-button').textContent = '▶️';
+        }
+
+        // Event-Listener für Kapitel-Klicks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.chapter-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    playChapter(this.dataset.chapter);
+                });
+            });
+
+            // Klick außerhalb schließt Modal
+            document.getElementById('modalBackground').onclick = function() {
+                closeModal('audiobookModal');
+                closeModal('videoModal');
+            };
+        });
+
+        // Beim Laden der Seite alle Modals verstecken
+        window.onload = function() {
+            document.getElementById('audiobookModal').style.display = 'none';
+            document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('modalBackground').style.display = 'none';
+        };
+    </script>
+</body>
+</html>
