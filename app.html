@@ -1,15 +1,8 @@
 <!DOCTYPE html>
-<html lang="de">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lars vom Mars</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Lars vom Mars">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <style>
         body {
             margin: 0;
@@ -44,22 +37,18 @@
             width: 100px !important;
             height: 100px !important;
             font-size: 16px !important;  
-            z-index: 1000;
         }
-
         .modal {
             display: none;
             position: fixed;
-            left: 50%;
             top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             z-index: 1000;
-            max-width: 400px;
-            width: 90%;
         }
 
         .modal-background {
@@ -73,49 +62,7 @@
             z-index: 999;
         }
 
-        .button {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            transition: transform 0.2s;
-            color: black;
-            font-weight: bold;
-            z-index: 1000;
-        }
-
-        .button:hover {
-            transform: scale(1.1);
-        }
-
-        .button.audiobook {
-            background: rgba(255,255,0,0.6);  
-        }
-
-        .button.video {
-            background: rgba(173,216,230,0.6);
-        }
-
-        .button.music {
-            background: rgba(255,160,160,0.6);
-        }
-
-        .button.sounds {
-            background: rgba(144,238,144,0.6);
-        }
-
-        .buttons {
-            display: flex;
-            gap: 40px;
-            margin: 20px;
-            margin-bottom: 50px;
-            position: fixed;
-            bottom: 20px;
-            z-index: 1000;
-        }
-
+        
         .lyrics-container {
             padding: 30px;
             border-radius: 15px;
@@ -149,642 +96,661 @@
             opacity: 0;
         }
 
-        /* Bibliotheks-Styles */
-        .library-modal {
+        .buttons {
+            display: flex;
+            gap: 40px;
+            margin: 20px;
+            margin-bottom: 50px;
+            position: fixed;
+            bottom: 20px;  
+        }
+
+        .button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+            color: black;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+        }
+
+        .button.audiobook {
+            background: rgba(255,255,0,0.6);  
+        }
+
+        .button.video {
+            background: rgba(173,216,230,0.6);
+        }
+
+        .button.music {
+            background: rgba(255,160,160,0.6);
+        }
+
+        .button.sounds {
+            background: rgba(144,238,144,0.6);
+        }
+
+        /* Kinderfreundlichere Styles */
+        .chapter-item {
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            padding: 20px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 3px solid transparent;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .chapter-item:hover {
+            transform: translateX(10px) scale(1.02);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .chapter-item.active {
+            background: linear-gradient(45deg, #fad0c4 0%, #ff9a9e 99%, #ff9a9e 100%);
+            border: 3px solid #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .chapter-number {
+            background: #fff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.4em;
+            color: #ff9a9e;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chapter-title {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+            color: #444;
+            font-weight: bold;
+        }
+
+        .chapter-description {
+            font-size: 1em;
+            color: #666;
+        }
+
+        .chapter-status {
+            font-size: 1.4em;
+            margin-left: auto;
+            width: 30px;
+            text-align: center;
+        }
+
+        .audio-player {
+            background: linear-gradient(45deg, #fad0c4 0%, #ff9a9e 99%, #ff9a9e 100%);
+            padding: 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 3px solid #fff;
+        }
+
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 15px;
+        }
+
+        .audio-button {
+            background: #fff;
+            border: none;
+            color: #ff9a9e;
+            padding: 20px 35px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .audio-button:hover {
+            background: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .now-playing {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        /* Blasen-Stil für das Modal */
+        .content-modal {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 95%;
-            max-width: 1100px;
-            max-height: 90vh;
-            background: transparent;
-            border-radius: 20px;
-            padding: 40px;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .library-modal h2 {
-            color: #fff;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            padding: 0;
-            line-height: 1;
-        }
-
-        .close-button:hover {
-            background: rgba(255, 255, 255, 0.5);
-            transform: scale(1.1);
-        }
-
-        .library-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 20px;
+            background: white;
             padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            height: calc(100% - 100px);
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+            width: 54vh;  
+            height: 54vh;
+            animation: float 5s ease-in-out infinite;
+            border: 8px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(8px);
         }
 
-        .library-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+        /* Innerer Container für den Inhalt */
+        .modal-content {
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            min-height: 200px;
-        }
-
-        .library-item.audio {
-            border: 2px solid rgba(255, 255, 0, 0.4);
-        }
-
-        .library-item.video {
-            border: 2px solid rgba(173, 216, 230, 0.4);
-        }
-
-        .library-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .library-item-number {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .library-item-title {
-            color: white;
-            font-size: 18px;
-            text-align: center;
-            margin: 15px 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-
-        .controls-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .download-button, .play-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: none;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
         }
 
-        .download-button:hover, .play-button:hover {
-            transform: scale(1.1);
-        }
-
-        .download-button {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .play-button {
-            background: #2196F3;
-            color: white;
-        }
-
-        .play-button.playing {
-            background: #f44336;
-        }
-
-        .download-progress {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: #4CAF50;
-            transition: width 0.3s ease;
-        }
-
-        .library-item.downloaded {
-            border-color: #4CAF50;
-        }
-
-        .library-item.downloaded .download-button {
-            display: none;
-        }
-
-        @media (max-width: 480px) {
-            .library-grid {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(4, 1fr);
-                gap: 15px;
-                padding: 15px;
-            }
-
-            .library-item {
-                min-height: 150px;
-            }
-        }
-
-        /* Video Library Styles */
-        #videoModal .library-item {
-            background: rgba(0, 191, 255, 0.05);
-            border: 2px solid rgba(0, 0, 0, 0.3);
-        }
-
-        #videoModal .library-item[data-downloaded="true"] {
-            border-color: rgba(0, 255, 0, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
-        }
-
-        #videoModal .library-item:hover {
-            background: rgba(0, 191, 255, 0.1);
-        }
-
-        /* Header Styles */
-        #header-container {
+        .modal-title {
+            color: #444;
+            font-size: 1.5em;
+            margin-bottom: 15px;
             text-align: center;
-            padding: 20px;
-            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
         }
 
-        #header-container h1 {
-            color: #fff;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin: 0;
-        }
-
-        /* Login Modal Styles */
-        #loginModal {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 400px;
-            margin: 0 auto;
-            position: fixed;
-        }
-
-        .login-form {
+        .chapter-list {
+            max-height: 35vh;
+            overflow-y: auto;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             gap: 15px;
+            width: 95%;
+            margin: 0 auto;
         }
 
-        .login-form .input-group {
-            margin-bottom: 15px;
-        }
-
-        .login-form .input-group label {
-            color: #fff;
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-
-        .login-form input {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            font-size: 1.1em;
-            width: 100%;
-        }
-
-        .login-form input[type="date"] {
-            color: #333;
-        }
-
-        .login-form button {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #4CAF50;
-            color: white;
-            font-size: 1.1em;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .login-form button:hover {
-            background: #45a049;
-        }
-
-        .password-requirements {
-            color: #fff;
-            font-size: 0.9em;
-            margin-top: 5px;
-            opacity: 0.8;
-        }
-
-        .password-error {
-            color: #ff6b6b;
-            font-size: 0.9em;
-            margin-top: 5px;
+        /* Audio-Player zentriert */
+        .audio-player {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 25px;
+            margin: 15px auto;
+            text-align: center;
             display: none;
-        }
-
-        .email-confirmation {
-            color: #4CAF50;
-            font-size: 0.9em;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .email-error {
-            color: #ff6b6b;
-            font-size: 0.9em;
-            margin-top: 5px;
-            display: none;
-        }
-
-        /* Geburtstags-Eingabe Styles */
-        .birthday-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .birthday-group select {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            font-size: 1.1em;
-            cursor: pointer;
-        }
-
-        .birthday-group select:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 1);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            z-index: 1000;
-            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(5px);
             width: 90%;
         }
 
-        /* Download-Dialog Styles */
-        .download-dialog {
-            display: none;
+        .chapter-item {
+            padding: 12px;
+            font-size: 0.9em;
+        }
+
+        .audio-button {
+            padding: 15px 25px;
+            font-size: 24px;
+        }
+
+        /* Glanzeffekt für die Seifenblase */
+        .bubble-shine {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 0, 0.1);
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            background: linear-gradient(
+                135deg,
+                rgba(255,255,255,0.4) 0%,
+                rgba(255,255,255,0.1) 50%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }
+
+        /* Kleine Blasen noch transparenter */
+        .bubble-decoration {
+            position: absolute;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            animation: float 4s ease-in-out infinite;
+            backdrop-filter: blur(2px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        /* Schwebeanimation für die Blase */
+        @keyframes float {
+            0% {
+                transform: translate(-50%, -50%);
+            }
+            50% {
+                transform: translate(-50%, -54%);
+            }
+            100% {
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        /* Innerer Container für den Inhalt */
+        .modal-content {
+            height: 100%;
+            overflow-y: auto;
             padding: 20px;
-            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-title {
+            color: #444;
+            font-size: 1.5em;
+            margin-bottom: 15px;
             text-align: center;
-            z-index: 2;
-            backdrop-filter: blur(5px);
-            width: 80%;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
         }
 
-        .download-dialog h4 {
-            color: #fff;
-            margin: 0 0 10px 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        /* Kleine Blasen-Dekoration */
+        .bubble-decoration {
+            position: absolute;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: float 4s ease-in-out infinite;
         }
 
-        .download-dialog p {
-            color: #fff;
-            margin: 0 0 15px 0;
-            font-size: 0.9em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        .bubble-1 {
+            width: 25px;
+            height: 25px;
+            top: 10%;
+            left: 10%;
+            animation-delay: -1s;
         }
 
-        .download-dialog button {
-            background: rgba(255, 255, 0, 0.3);
-            color: #fff;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            margin: 0 5px;
-            font-size: 0.9em;
-            transition: background 0.3s ease;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        .bubble-2 {
+            width: 20px;
+            height: 20px;
+            top: 20%;
+            right: 15%;
+            animation-delay: -2s;
         }
 
-        .download-dialog button:hover {
-            background: rgba(255, 255, 0, 0.5);
+        .bubble-3 {
+            width: 15px;
+            height: 15px;
+            bottom: 15%;
+            right: 10%;
+            animation-delay: -3s;
         }
 
-        /* Close Button Styles */
+        /* Anpassung der Schließen-Taste */
         .close-button {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            color: white;
+            top: 20px;
+            right: 30px;
+            background: white;
+            border: none;
+            color: #8ec5fc;
             font-size: 24px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            padding: 0;
-            line-height: 1;
+            padding: 8px 15px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
 
         .close-button:hover {
-            background: rgba(255, 255, 255, 0.5);
             transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        /* Library Item Styles */
-        .library-item {
-            background: rgba(255, 255, 0, 0.1);
+        /* Hauptblasen-Animation - von unten starten */
+        @keyframes mainBubbleFloat {
+            0% {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            20% {
+                transform: translate(-50%, 50%);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -150%);
+                opacity: 0;
+            }
+        }
+
+        /* Angepasste Animation für Kapitel-Blasen innerhalb der Hauptblase */
+        @keyframes bubbleRiseInside {
+            0% {
+                transform: translateY(120%) scale(0.8);
+                opacity: 0;
+            }
+            20% {
+                transform: translateY(60%) scale(0.9);
+                opacity: 1;
+            }
+            80% {
+                transform: translateY(-60%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120%) scale(0.9);
+                opacity: 0;
+            }
+        }
+
+        .content-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, 
+                rgba(224,195,252,0.5) 0%, 
+                rgba(142,197,252,0.5) 100%
+            );
+            padding: 25px;
             border-radius: 50%;
+            box-shadow: 
+                0 10px 20px rgba(0,0,0,0.1),
+                inset 0 0 100px rgba(255,255,255,0.5);
+            z-index: 1000;
+            width: 54vh;
+            height: 54vh;
+            animation: mainBubbleFloat 25s ease-in-out infinite;
+            border: 8px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+        }
+
+        .content-modal.paused {
+            animation-play-state: paused;
+        }
+
+        .content-modal.paused .chapter-item {
+            animation-play-state: paused;
+        }
+
+        /* Kapitel-Blasen innerhalb der Hauptblase */
+        .chapter-item {
+            background: linear-gradient(45deg, 
+                rgba(255,154,158,0.4) 0%, 
+                rgba(250,208,196,0.4) 100%
+            );
             padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            position: relative;
-            aspect-ratio: 1;
+            border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto;
-        }
-
-        .library-item:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 0, 0.2);
-        }
-
-        .library-item h3 {
-            color: #fff;
-            margin: 5px 0;
-            font-size: 1.2em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Player Controls Styles */
-        .player-controls {
-            background: transparent;
-            padding: 5px;
-            margin-top: 5px;
-            text-align: center;
-            display: none;
-            width: 100%;
-        }
-
-        .player-controls button {
-            background: rgba(255, 255, 0, 0.3);
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 15px;
             cursor: pointer;
-            margin: 0;
-            font-size: 0.9em;
-            transition: background 0.3s ease;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 10px;
+            transition: all 0.3s ease;
+            border: 4px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+            animation: bubbleRiseInside 20s ease-in-out infinite;
         }
 
-        .player-controls button:hover {
-            background: rgba(255, 255, 0, 0.5);
+        /* JavaScript für das Anhalten der Animation */
+        .chapter-item {
+            background: linear-gradient(45deg, 
+                rgba(255,154,158,0.4) 0%, 
+                rgba(250,208,196,0.4) 100%
+            );
+            padding: 15px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 10px;
+            transition: all 0.3s ease;
+            border: 4px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+            animation: bubbleRiseInside 20s ease-in-out infinite;
+        }
+
+        /* Angepasste Kapitel-Positionen */
+        .chapter-item:nth-child(1) {
+            animation-delay: 0s;
+            left: -10%;
+        }
+
+        .chapter-item:nth-child(2) {
+            animation-delay: -7s;
+            left: 0;
+        }
+
+        .chapter-item:nth-child(3) {
+            animation-delay: -14s;
+            left: 10%;
+        }
+
+        /* Container für die Kapitel */
+        .chapter-list {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: visible;
+        }
+
+        /* Import Button Styling */
+        .import-button {
+            background: linear-gradient(45deg, rgba(152, 251, 152, 0.6) 0%, rgba(102, 204, 102, 0.6) 100%);
+            color: #444;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .import-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .import-button i {
+            margin-right: 5px;
+        }
+
+        /* Import feedback styling */
+        .import-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            font-size: 0.9em;
+            animation: fadeInOut 5s ease-in-out;
+        }
+
+        .import-success {
+            background-color: rgba(144, 238, 144, 0.3);
+            color: #006400;
+        }
+
+        .import-error {
+            background-color: rgba(255, 182, 193, 0.3);
+            color: #8B0000;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* File input styling - hidden but accessible */
+        #audiobook-file-input {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div id="header-container">
-        <h1>Willkommen in der Welt von Lars vom Mars</h1>
-    </div>
-
-    <button class="button login-button" onclick="showModal('loginModal')">Eltern<br>Login</button>
-    
+    <button class="button login-button" onclick="showLogin()">Eltern<br>Login</button>
     <div class="modal-background" id="modalBackground"></div>
+    <!-- Admin-Bereich/Login-Modal entfernt -->
+    <h1>WILLKOMMEN<br>IN DER WELT VON LARS VOM MARS</h1>
     
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <button class="close-button" onclick="document.getElementById('loginModal').style.display = 'none'" title="Schließen">✕</button>
-        <h2>Eltern-Login</h2>
-        <form class="login-form" onsubmit="handleLogin(event)">
-            <div class="input-group">
-                <label for="parentName">Name Elternteil</label>
-                <input type="text" id="parentName" placeholder="Vor- und Nachname" required>
-            </div>
-            <div class="input-group">
-                <label for="email">E-Mail</label>
-                <input type="email" id="email" placeholder="ihre@email.de" required>
-            </div>
-            <div class="input-group">
-                <label for="childName">Name Kind</label>
-                <input type="text" id="childName" placeholder="Vorname" required>
-            </div>
-            <div class="input-group">
-                <label for="birthdate">Geburtstag Kind</label>
-                <div class="birthday-group">
-                    <select id="birthDay" required>
-                        <option value="">Tag</option>
-                    </select>
-                    <select id="birthMonth" required>
-                        <option value="">Monat</option>
-                        <option value="1">Januar</option>
-                        <option value="2">Februar</option>
-                        <option value="3">März</option>
-                        <option value="4">April</option>
-                        <option value="5">Mai</option>
-                        <option value="6">Juni</option>
-                        <option value="7">Juli</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">Oktober</option>
-                        <option value="11">November</option>
-                        <option value="12">Dezember</option>
-                    </select>
-                    <select id="birthYear" required>
-                        <option value="">Jahr</option>
-                    </select>
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="password">Passwort</label>
-                <input type="password" id="password" placeholder="8 Zeichen, 1 Großbuchstabe, 2 Zahlen" required 
-                       pattern="^(?=.*[A-Z])(?=.*[0-9].*[0-9])[A-Za-z0-9]{8}$"
-                       oninput="validatePassword(this)">
-                <div class="password-requirements">
-                    Passwort muss enthalten:
-                    - 8 Zeichen
-                    - 1 Großbuchstabe
-                    - 2 Zahlen
-                </div>
-                <div class="password-error" id="passwordError">
-                    Passwort entspricht nicht den Anforderungen
-                </div>
-            </div>
-            <div class="email-confirmation" id="emailConfirmation">
-                Eine Bestätigungs-E-Mail wurde an Ihre Adresse gesendet.
-            </div>
-            <div class="email-error" id="emailError">
-                Bitte geben Sie eine gültige E-Mail-Adresse ein
-            </div>
-            <button type="submit">Registrieren</button>
-        </form>
+    <div class="lyrics-container">
+        <!-- Hier kommen die Liedtexte -->
     </div>
-
-    <div class="lyrics-container"></div>
-
+    
     <div class="buttons">
         <button class="button audiobook" onclick="handleButtonClick('audiobook')">Hörbuch</button>
         <button class="button video" onclick="handleButtonClick('video')">Video</button>
         <button class="button music" onclick="handleButtonClick('music')">Musik</button>
-        <button class="button sounds" onclick="handleButtonClick('action')">Action</button>
+        <button class="button sounds" onclick="handleButtonClick('sounds')">Action</button>  
     </div>
 
-    <!-- Hörbuch-Bibliothek -->
-    <div id="audiobookModal" class="library-modal">
-        <div class="library-content">
-            <div class="library-header">Hörbücher</div>
-            <button class="close-button" onclick="toggleLibrary('audiobook')">&times;</button>
-            <div class="library-grid">
-                <!-- 4 Download-Felder für Hörbücher -->
+    <div class="content-modal" id="audiobookModal">
+        <div class="bubble-shine"></div>
+        <button class="close-button" onclick="closeModal('audiobookModal')">×</button>
+        <div class="modal-content">
+            <h2 class="modal-title">🎧 Lars vom Mars - Die komplette Geschichte</h2>
+            
+            <!-- Import Button hinzugefügt -->
+            <button class="import-button" onclick="document.getElementById('audiobook-file-input').click()">
+                <i>📂</i> Hörbuch importieren
+            </button>
+            <input type="file" id="audiobook-file-input" accept="audio/*" multiple onchange="importAudiobooks(this.files)">
+            <div id="import-feedback" class="import-feedback"></div>
+            
+            <div class="audio-player" id="chapterPlayer">
+                <div class="now-playing">Kapitel wird geladen...</div>
+                <div class="audio-controls">
+                    <button class="audio-button" onclick="toggleChapter()">▶️</button>
+                    <button class="audio-button" onclick="stopChapter()">⏹️</button>
+                </div>
             </div>
+
+            <div class="chapter-list">
+                <div class="chapter-item" data-chapter="1" onclick="playChapter(1)">
+                    <div class="chapter-number">1</div>
+                    <div class="chapter-info">
+                        <div class="chapter-title">Lars startet zur Erde</div>
+                    </div>
+                </div>
+                
+                <div class="chapter-item" data-chapter="2" onclick="playChapter(2)">
+                    <div class="chapter-number">2</div>
+                    <div class="chapter-info">
+                        <div class="chapter-title">Lars im Raumschiff</div>
+                    </div>
+                </div>
+                
+                <div class="chapter-item" data-chapter="3" onclick="playChapter(3)">
+                    <div class="chapter-number">3</div>
+                    <div class="chapter-info">
+                        <div class="chapter-title">Lars trifft einen Stern</div>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </div>
 
-    <!-- Video-Bibliothek -->
-    <div id="videoModal" class="library-modal">
-        <div class="library-content">
-            <div class="library-header">Videos</div>
-            <button class="close-button" onclick="toggleLibrary('video')">&times;</button>
-            <div class="library-grid">
-                <!-- 4 Download-Felder für Videos -->
+    <div class="content-modal" id="videoModal">
+        <button class="close-button" onclick="closeModal('videoModal')">×</button>
+        <h2 class="modal-title">🎬 Lars vom Mars - Videoabenteuer</h2>
+        <div class="chapter-list">
+            <div class="chapter-item">
+                <div class="chapter-number">1</div>
+                <div class="chapter-info">
+                    <div class="chapter-title">Lars' erste Reise</div>
+                    <div class="chapter-description">Ein spannendes Abenteuer beginnt, als Lars sein Raumschiff startet.</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Audio-Variablen initialisieren
+        // Audio-Player initialisieren
         let audioPlayer = null;
         let isPlaying = false;
-        let actionSound = null;
+        let soundIsPlaying = false;
+
+        // Quack-Sound
+        const quackSound = new Audio('quack_sound.mp3');
 
         // Button-Klick-Handler
         function handleButtonClick(type) {
-            if (type === 'action') {
-                if (actionSound && !actionSound.paused) {
-                    actionSound.pause();
-                    actionSound.currentTime = 0;
-                } else {
-                    if (actionSound) {
-                        actionSound.currentTime = 0;
-                    } else {
-                        actionSound = new Audio('quack_sound.mp3');
-                    }
-                    actionSound.play().catch(error => {
-                        console.error('Fehler beim Abspielen:', error);
-                    });
-                }
-                return;
-            }
-
-            const modalMap = {
-                'audiobook': 'audiobookModal',
-                'video': 'videoModal'
-            };
-
-            if (modalMap[type]) {
-                const modal = document.getElementById(modalMap[type]);
-                if (modal.style.display === 'block') {
-                    modal.style.display = 'none';
-                    document.getElementById('modalBackground').style.display = 'none';
-                } else {
-                    // Schließe andere Modals
-                    Object.values(modalMap).forEach(id => {
-                        const otherModal = document.getElementById(id);
-                        if (otherModal && otherModal !== modal) {
-                            otherModal.style.display = 'none';
-                        }
-                    });
-                    modal.style.display = 'block';
-                    document.getElementById('modalBackground').style.display = 'block';
-                }
-            } else if (type === 'music') {
+            if (type === 'music') {
                 toggleMusic();
+            } else if (type === 'sounds') {
+                playQuackSound();
+            } else if (type === 'audiobook') {
+                document.getElementById('audiobookModal').style.display = 'block';
+                document.getElementById('modalBackground').style.display = 'block';
+            } else if (type === 'video') {
+                document.getElementById('videoModal').style.display = 'block';
+                document.getElementById('modalBackground').style.display = 'block';
             }
         }
 
-        function handleMediaClick(type, chapter) {
-            const item = event.currentTarget;
-            if (!item.hasAttribute('data-downloaded')) {
-                const dialog = item.querySelector('.download-dialog');
-                if (dialog) dialog.style.display = 'block';
+        // Quack-Sound abspielen
+        function playQuackSound() {
+            if (soundIsPlaying) {
+                quackSound.pause();
+                quackSound.currentTime = 0;
+                soundIsPlaying = false;
             } else {
-                const controls = item.querySelector('.player-controls');
-                if (controls) controls.style.display = 'block';
+                quackSound.play();
+                soundIsPlaying = true;
+                // Nach 10 Sekunden stoppen
+                setTimeout(() => {
+                    quackSound.pause();
+                    quackSound.currentTime = 0;
+                    soundIsPlaying = false;
+                }, 10000);
             }
         }
 
+        // Musik abspielen/pausieren
         function toggleMusic() {
             if (!audioPlayer) {
                 audioPlayer = new Audio('lars_vom_mars_song.wav');
@@ -792,23 +758,23 @@
             
             if (isPlaying) {
                 audioPlayer.pause();
-                audioPlayer.currentTime = 0;
+                audioPlayer.currentTime = 0; // Zurück zum Start
                 isPlaying = false;
                 document.querySelector('.lyrics-container').textContent = '';
                 document.querySelector('.lyrics-container').classList.remove('visible');
+                // Alle Timeouts löschen wenn Musik stoppt
                 if (window.timeouts) {
                     window.timeouts.forEach(timeout => clearTimeout(timeout));
                 }
             } else {
-                audioPlayer.play().catch(error => {
-                    console.error('Fehler beim Abspielen:', error);
-                });
+                audioPlayer.currentTime = 0; // Immer vom Start beginnen
+                audioPlayer.play();
                 isPlaying = true;
-                window.timeouts = [];
+                window.timeouts = [];  // Array für unsere Timeouts
 
+                // Container vorbereiten
                 const container = document.querySelector('.lyrics-container');
                 container.innerHTML = '';
-                container.classList.add('visible');
 
                 // Verse 1 (nach 10 Sekunden)
                 window.timeouts.push(setTimeout(() => {
@@ -819,7 +785,7 @@
                         "Ein Lied von Wüsten, die einst nach Heimat klang."
                     ];
                     
-                    container.innerHTML = '';
+                    container.classList.add('visible');
                     lines.forEach((line, index) => {
                         const div = document.createElement('div');
                         div.textContent = line;
@@ -926,594 +892,326 @@
             }
         }
 
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.style.display = 'block';
-            document.getElementById('modalBackground').style.display = 'block';
-        }
-
-        function hideModal(modalId) {
-            if (modalId === 'loginModal') {
-                if (confirm('Möchten Sie das Eingabefenster wirklich schließen?')) {
-                    document.getElementById(modalId).style.display = 'none';
-                }
-            } else {
-                document.getElementById(modalId).style.display = 'none';
-            }
-        }
-
-        // Download-System
-        const downloadedMedia = {
-            audiobooks: {},
-            videos: {}
-        };
-
-        // IndexedDB für Offline-Speicherung einrichten
-        let db;
-        const request = indexedDB.open('LarsVomMarsDB', 1);
-
-        request.onerror = (event) => {
-            console.error('Datenbank-Fehler:', event.target.error);
-        };
-
-        request.onupgradeneeded = (event) => {
-            db = event.target.result;
-            if (!db.objectStoreNames.contains('media')) {
-                db.createObjectStore('media', { keyPath: 'id' });
-            }
-        };
-
-        request.onsuccess = (event) => {
-            db = event.target.result;
-            loadOfflineMedia();
-        };
-
-        function loadOfflineMedia() {
-            const transaction = db.transaction(['media'], 'readonly');
-            const store = transaction.objectStore('media');
-            const request = store.getAll();
-
-            request.onsuccess = () => {
-                const media = request.result;
-                media.forEach(item => {
-                    if (item.type === 'audiobook') {
-                        downloadedMedia.audiobooks[item.id] = item;
-                    } else {
-                        downloadedMedia.videos[item.id] = item;
-                    }
-                    const mediaItem = document.querySelector(`[data-media-id="${item.id}"]`);
-                    if (mediaItem) {
-                        mediaItem.setAttribute('data-downloaded', 'true');
-                        const controls = mediaItem.querySelector('.player-controls');
-                        if (controls) {
-                            controls.style.display = 'block';
-                        }
-                    }
-                    updateMediaStatus(item.id, true);
-                });
-            };
-        }
-
-        function downloadMedia(mediaId, type) {
-            const statusElement = document.querySelector(`[data-media-id="${mediaId}"] .download-status`);
-            const progressBar = document.querySelector(`[data-media-id="${mediaId}"] .download-progress`);
-            
-            if (!statusElement || !progressBar) return;
-
-            statusElement.textContent = 'Wird heruntergeladen...';
-            statusElement.classList.add('downloading');
-
-            // Lade die Lars_Hörbuch.mp4 als Test
-            fetch('Lars_Hörbuch.mp4')
-                .then(response => response.blob())
-                .then(blob => {
-                    // Simuliere Download-Progress
-                    let progress = 0;
-                    const interval = setInterval(() => {
-                        progress += 5;
-                        progressBar.style.width = `${progress}%`;
-
-                        if (progress >= 100) {
-                            clearInterval(interval);
-                            completeDownload(mediaId, type, blob);
-                        }
-                    }, 200);
-                })
-                .catch(error => {
-                    console.error('Download-Fehler:', error);
-                    statusElement.textContent = 'Fehler beim Download';
-                    statusElement.style.background = '#ff0000';
-                });
-        }
-
-        function completeDownload(mediaId, type, blob) {
-            const mediaData = {
-                id: mediaId,
-                type: type,
-                timestamp: Date.now()
-            };
-
-            // Speichere in IndexedDB
-            const transaction = db.transaction(['media'], 'readwrite');
-            const store = transaction.objectStore('media');
-            store.put(mediaData);
-
-            // Update UI
-            if (type === 'audiobook') {
-                downloadedMedia.audiobooks[mediaId] = mediaData;
-            } else {
-                downloadedMedia.videos[mediaId] = mediaData;
-            }
-
-            const item = document.querySelector(`[data-media-id="${mediaId}"]`);
-            if (item) {
-                item.setAttribute('data-downloaded', 'true');
-                // Verstecke Download-Status und Progress
-                const status = item.querySelector('.download-status');
-                const progress = item.querySelector('.download-progress');
-                if (status) status.style.display = 'none';
-                if (progress) progress.style.display = 'none';
-                
-                // Zeige Player Controls
-                const controls = item.querySelector('.player-controls');
-                if (controls) {
-                    controls.style.display = 'block';
-                }
-            }
-        }
-
-        // Modifiziertes Player-System
-        const mediaPlayers = {
-            audiobook: {},
-            video: {}
-        };
-
-        function togglePlay(mediaId, type) {
-            const player = mediaPlayers[type][mediaId];
-            const item = document.querySelector(`[data-media-id="${mediaId}"]`);
-            const button = item.querySelector('.player-controls button');
-            
-            if (!player) {
-                // Erstelle neuen Audio-Player
-                mediaPlayers[type][mediaId] = new Audio('Lars_Hörbuch.mp4');
-                const newPlayer = mediaPlayers[type][mediaId];
-                
-                // Event-Listener für Updates
-                newPlayer.addEventListener('timeupdate', () => updateProgress(mediaId, type));
-                newPlayer.addEventListener('ended', () => {
-                    button.textContent = 'Play';
-                    newPlayer.currentTime = 0;
-                });
-                
-                // Starte Wiedergabe
-                newPlayer.play();
-                button.textContent = 'Pause';
-            } else {
-                if (player.paused) {
-                    player.play();
-                    button.textContent = 'Pause';
-                } else {
-                    player.pause();
-                    button.textContent = 'Play';
-                }
-            }
-        }
-
-        function updateProgress(mediaId, type) {
-            const player = mediaPlayers[type][mediaId];
-            const item = document.querySelector(`[data-media-id="${mediaId}"]`);
-            if (!player || !item) return;
-
-            const progressBar = item.querySelector('.progress-bar .progress');
-            const timeDisplay = item.querySelector('.time');
-            
-            if (progressBar && timeDisplay) {
-                const progress = (player.currentTime / player.duration) * 100;
-                progressBar.style.width = `${progress}%`;
-                
-                const currentTime = formatTime(player.currentTime);
-                const duration = formatTime(player.duration);
-                timeDisplay.textContent = `${currentTime} / ${duration}`;
-            }
-        }
-
-        function formatTime(seconds) {
-            if (!seconds || isNaN(seconds)) return '0:00';
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }
-
-        // Bibliotheks-Funktionen
-        function handleAudiobook(chapterId) {
-            const isDownloaded = downloadedMedia.audiobooks[chapterId];
-            if (!isDownloaded) {
-                showDownloadDialog(chapterId);
-            }
-            // Kein automatisches Abspielen mehr
-        }
-
-        function handleVideo(videoId) {
-            const isDownloaded = downloadedMedia.videos[videoId];
-            if (!isDownloaded) {
-                showDownloadDialog(videoId);
-            }
-            // Kein automatisches Abspielen mehr
-        }
-
-        function playMedia(mediaId, type) {
-            const mediaData = type === 'audiobook' ? 
-                downloadedMedia.audiobooks[mediaId] : 
-                downloadedMedia.videos[mediaId];
-
-            if (!mediaData) return;
-
-            const mediaUrl = mediaData.url || 'Lars_Hörbuch.mp4';
-            const controls = document.querySelector(`[data-media-id="${mediaId}"] .player-controls`);
-            controls.style.display = 'block';
-
-            if (type === 'audiobook') {
-                if (!audioPlayer) {
-                    audioPlayer = new Audio(mediaUrl);
-                } else {
-                    audioPlayer.src = mediaUrl;
-                }
-                
-                audioPlayer.play().catch(error => {
-                    console.error('Fehler beim Abspielen:', error);
-                });
-            } else {
-                const videoModal = document.getElementById('videoModal');
-                const videoPlayer = document.createElement('video');
-                videoPlayer.src = mediaUrl;
-                videoPlayer.style.width = '100%';
-                videoPlayer.style.maxWidth = '800px';
-                videoPlayer.style.marginTop = '20px';
-                
-                const oldVideo = videoModal.querySelector('video');
-                if (oldVideo) {
-                    oldVideo.remove();
-                }
-                
-                videoModal.appendChild(videoPlayer);
-                videoPlayer.play().catch(error => {
-                    console.error('Fehler beim Abspielen:', error);
-                });
-            }
-        }
-
-        function showDownloadDialog(mediaId) {
-            const item = document.querySelector(`[data-media-id="${mediaId}"]`);
-            if (!item) return;
-            
-            const dialog = item.querySelector('.download-dialog');
-            if (dialog) {
-                dialog.style.display = 'block';
-            }
-        }
-
-        function hideDownloadDialog(mediaId) {
-            const item = document.querySelector(`[data-media-id="${mediaId}"]`);
-            if (!item) return;
-            
-            const dialog = item.querySelector('.download-dialog');
-            if (dialog) {
-                dialog.style.display = 'none';
-            }
-        }
-
-        function startDownload(mediaId, type) {
-            hideDownloadDialog(mediaId);
-            
-            const statusElement = document.querySelector(`[data-media-id="${mediaId}"] .download-status`);
-            const progressBar = document.querySelector(`[data-media-id="${mediaId}"] .download-progress`);
-            
-            if (!statusElement || !progressBar) return;
-
-            statusElement.textContent = 'Wird heruntergeladen...';
-            statusElement.classList.add('downloading');
-
-            // Erstelle einen Download-Link
-            const link = document.createElement('a');
-            link.href = 'Lars_Hörbuch.mp4';
-            link.download = `Lars_${mediaId}.mp4`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Simuliere Download-Progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                progressBar.style.width = `${progress}%`;
-
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    completeDownload(mediaId, type);
-                }
-            }, 200);
-        }
-
-        // Login-System
-        function validateEmail(email) {
-            const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return pattern.test(email);
-        }
-
-        function validatePassword(input) {
-            const password = input.value;
-            const errorDiv = document.getElementById('passwordError');
-            const pattern = /^(?=.*[A-Z])(?=.*[0-9].*[0-9])[A-Za-z0-9]{8}$/;
-            
-            if (password && !pattern.test(password)) {
-                errorDiv.style.display = 'block';
-                input.setCustomValidity('Passwort entspricht nicht den Anforderungen');
-            } else {
-                errorDiv.style.display = 'none';
-                input.setCustomValidity('');
-            }
-        }
-
-        function handleLogin(event) {
-            event.preventDefault();
-            const parentName = document.getElementById('parentName').value;
-            const email = document.getElementById('email').value;
-            const childName = document.getElementById('childName').value;
-            const day = document.getElementById('birthDay').value;
-            const month = document.getElementById('birthMonth').value;
-            const year = document.getElementById('birthYear').value;
-            const password = document.getElementById('password').value;
-
-            // Validiere E-Mail
-            if (!validateEmail(email)) {
-                document.getElementById('emailError').style.display = 'block';
-                return;
-            }
-            document.getElementById('emailError').style.display = 'none';
-
-            // Validiere Passwort
-            const passwordPattern = /^(?=.*[A-Z])(?=.*[0-9].*[0-9])[A-Za-z0-9]{8}$/;
-            if (!passwordPattern.test(password)) {
-                return;
-            }
-
-            // Formatiere Geburtsdatum
-            const birthdate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-
-            // Zeige Bestätigungs-Nachricht
-            document.getElementById('emailConfirmation').style.display = 'block';
-
-            // Speichere die Daten
-            localStorage.setItem('parentName', parentName);
-            localStorage.setItem('email', email);
-            localStorage.setItem('childName', childName);
-            localStorage.setItem('birthdate', birthdate);
-            localStorage.setItem('password', btoa(password));
-
-            // Schließe Login-Modal nach 3 Sekunden
-            setTimeout(() => {
-                hideModal('loginModal');
-                document.getElementById('modalBackground').style.display = 'none';
-            }, 3000);
-        }
-
-        // Geburtstags-Felder initialisieren
-        function initBirthdayFields() {
-            const daySelect = document.getElementById('birthDay');
-            const yearSelect = document.getElementById('birthYear');
-            
-            // Tage 1-31
-            for (let i = 1; i <= 31; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
-                daySelect.appendChild(option);
-            }
-            
-            // Jahre (aktuelle Jahr - 15 bis aktuelles Jahr)
-            const currentYear = new Date().getFullYear();
-            for (let i = currentYear; i >= currentYear - 15; i--) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
-                yearSelect.appendChild(option);
-            }
-        }
-
-        // Beim Laden der Seite initialisieren
-        document.addEventListener('DOMContentLoaded', initBirthdayFields);
-
-        // Event-Listener für Modal-Schließen
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
             document.getElementById('modalBackground').style.display = 'none';
-            
-            // Stoppe Medien beim Schließen
-            if (modalId === 'audiobookModal' && audioPlayer) {
-                stopPlay('audio');
-                document.getElementById('audioControls').style.display = 'none';
-            } else if (modalId === 'videoModal' && videoPlayer) {
-                stopPlay('video');
-                document.getElementById('videoControls').style.display = 'none';
-            }
         }
 
-        // Event-Listener für Klick außerhalb der Modals
+        function showLogin() {
+            alert('Diese Funktion steht derzeit nicht zur Verfügung');
+        }
+
+        // Klick außerhalb schließt Modal
         document.getElementById('modalBackground').onclick = function() {
-            closeModal('audiobookModal');
-            closeModal('videoModal');
-            closeModal('loginModal');
+            document.getElementById('audiobookModal').style.display = 'none';
+            document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('modalBackground').style.display = 'none';
         };
 
-        function handleVideoClick(chapter) {
-            const item = event.currentTarget;
-            if (!item.hasAttribute('data-downloaded')) {
-                const dialog = item.querySelector('.download-dialog');
-                if (dialog) dialog.style.display = 'block';
-            } else {
-                const controls = item.querySelector('.player-controls');
-                if (controls) controls.style.display = 'block';
-            }
-        }
+        // Hörbuch-Player
+        let chapterAudio = null;
+        let currentChapter = null;
+        let chapterPlaying = false;
 
-        function startDownload(type, chapter) {
-            event.stopPropagation();
-            const item = event.target.closest('.library-item');
-            const dialog = item.querySelector('.download-dialog');
-            const progress = item.querySelector('.download-progress');
-            
-            dialog.style.display = 'none';
-            progress.style.display = 'block';
-            
-            let downloaded = 0;
-            const interval = setInterval(() => {
-                downloaded += 10;
-                const progressBar = progress.querySelector('.progress');
-                const progressText = progress.querySelector('.progress-text');
-                progressBar.style.width = downloaded + '%';
-                progressText.textContent = downloaded + '%';
-                
-                if (downloaded >= 100) {
-                    clearInterval(interval);
-                    progress.style.display = 'none';
-                    item.setAttribute('data-downloaded', 'true');
-                    const controls = item.querySelector('.player-controls');
-                    if (controls) {
-                        controls.style.display = 'block';
-                    }
-                }
-            }, 200);
-        }
-
-        function hideDownloadDialog(button) {
-            event.stopPropagation();
-            const dialog = button.closest('.download-dialog');
-            if (dialog) dialog.style.display = 'none';
-        }
-
-        function togglePlay(type, chapter) {
-            event.stopPropagation();
-            const button = event.target;
-            const item = button.closest('.library-item');
-            const player = type === 'audio' ? audioPlayer : videoPlayer;
-            
-            if (!player || player.chapter !== chapter) {
-                if (player) {
-                    player.pause();
-                    player.currentTime = 0;
-                }
-                
-                const newPlayer = new Audio(type === 'audio' ? 'chapter_' + chapter + '.mp3' : 'video_' + chapter + '.mp4');
-                newPlayer.chapter = chapter;
-                
-                if (type === 'audio') {
-                    audioPlayer = newPlayer;
-                } else {
-                    videoPlayer = newPlayer;
-                }
-                
-                newPlayer.play();
-                button.textContent = 'Pause';
-            } else {
-                if (player.paused) {
-                    player.play();
-                    button.textContent = 'Pause';
-                } else {
-                    player.pause();
-                    button.textContent = 'Play';
-                }
-            }
-        }
-
-        // Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registered:', registration);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed:', error);
-                    });
+        function playChapter(number) {
+            // Entferne aktive Markierung von allen Kapiteln
+            document.querySelectorAll('.chapter-item').forEach(item => {
+                item.classList.remove('active');
             });
-        }
-
-        function initializePlaceholders(modalId, prefix, type) {
-            const grid = document.querySelector(`#${modalId} .library-grid`);
-            grid.innerHTML = '';
-
-            for (let i = 1; i <= 4; i++) {
-                const item = document.createElement('div');
-                item.className = `library-item ${type}`;
-                
-                const number = document.createElement('div');
-                number.className = 'library-item-number';
-                number.textContent = i;
-                
-                const title = document.createElement('div');
-                title.className = 'library-item-title';
-                title.textContent = `${prefix} ${i}`;
-                
-                const controls = document.createElement('div');
-                controls.className = 'controls-container';
-                
-                const downloadButton = document.createElement('button');
-                downloadButton.className = 'download-button';
-                downloadButton.innerHTML = '↓';
-                downloadButton.onclick = () => downloadMedia(type, i);
-                
-                const playButton = document.createElement('button');
-                playButton.className = 'play-button';
-                playButton.innerHTML = '▶';
-                playButton.onclick = () => togglePlay(type, i);
-                
-                const progress = document.createElement('div');
-                progress.className = 'download-progress';
-                const progressBar = document.createElement('div');
-                progressBar.className = 'progress-bar';
-                progress.appendChild(progressBar);
-                
-                controls.appendChild(downloadButton);
-                controls.appendChild(playButton);
-                
-                item.appendChild(number);
-                item.appendChild(title);
-                item.appendChild(controls);
-                item.appendChild(progress);
-                
-                grid.appendChild(item);
-            }
-        }
-
-        function togglePlay(type, id) {
-            const button = document.querySelector(`#${type}Modal .library-item:nth-child(${id}) .play-button`);
-            if (button.classList.contains('playing')) {
-                button.classList.remove('playing');
-                button.innerHTML = '▶';
-                // Hier später: Audio/Video stoppen
-            } else {
-                button.classList.add('playing');
-                button.innerHTML = '⏹';
-                // Hier später: Audio/Video abspielen
-            }
-        }
-
-        function downloadMedia(type, id) {
-            const item = document.querySelector(`#${type}Modal .library-item:nth-child(${id})`);
-            const progressBar = item.querySelector('.progress-bar');
             
-            // Simuliere Download-Fortschritt
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 5;
-                progressBar.style.width = `${progress}%`;
+            // Markiere ausgewähltes Kapitel als aktiv
+            document.querySelector(`.chapter-item:nth-child(${number})`).classList.add('active');
+
+            // Stoppe vorherige Wiedergabe
+            if (chapterAudio) {
+                chapterAudio.pause();
+                chapterAudio.currentTime = 0;
+                chapterPlaying = false;
+                document.querySelector('.audio-button').textContent = '▶️';
+            }
+
+            // Zeige Player
+            const player = document.getElementById('chapterPlayer');
+            player.style.display = 'block';
+
+            // Aktualisiere "Now Playing"
+            const chapterTitle = document.querySelector(`.chapter-item:nth-child(${number}) .chapter-title`).textContent;
+            document.querySelector('.now-playing').textContent = `${chapterTitle}`;
+
+            // Lade Kapitel
+            chapterAudio = new Audio(`chapter${number}.mp3`);
+            currentChapter = number;
+        }
+
+        function toggleChapter() {
+            if (!chapterAudio) return;
+
+            const playButton = document.querySelector('.audio-button');
+            if (chapterPlaying) {
+                chapterAudio.pause();
+                chapterPlaying = false;
+                playButton.textContent = '▶️';
+            } else {
+                // Versuche das Audio zu laden und abzuspielen
+                chapterAudio.load();  // Lade das Audio neu
+                const playPromise = chapterAudio.play();
                 
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    item.classList.add('downloaded');
-                    // Hier später: Tatsächlichen Download implementieren
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // Wiedergabe erfolgreich gestartet
+                        chapterPlaying = true;
+                        playButton.textContent = '⏸️';
+                    }).catch(error => {
+                        console.error('Fehler beim Abspielen:', error);
+                        alert('Ups! Das Kapitel konnte nicht abgespielt werden.');
+                        chapterPlaying = false;
+                        playButton.textContent = '▶️';
+                    });
                 }
-            }, 100);
+            }
+        }
+
+        function stopChapter() {
+            if (!chapterAudio) return;
+            
+            chapterAudio.pause();
+            chapterAudio.currentTime = 0;
+            chapterPlaying = false;
+            document.querySelector('.audio-button').textContent = '▶️';
+        }
+
+        // Beim Schließen des Modals auch Audio stoppen
+        const originalCloseModal = closeModal;
+        closeModal = function(modalId) {
+            if (modalId === 'audiobookModal') {
+                stopChapter();
+            }
+            originalCloseModal(modalId);
+        };
+
+        // Beim Laden der Seite alle Modals verstecken
+        window.onload = function() {
+            document.getElementById('audiobookModal').style.display = 'none';
+            document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('modalBackground').style.display = 'none';
+        };
+
+        function stopAnimations() {
+            const modal = document.querySelector('.content-modal');
+            modal.classList.add('paused');
+        }
+
+        // Event-Listener für Kapitel-Klicks
+        document.querySelectorAll('.chapter-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                stopAnimations();
+                playChapter(this.dataset.chapter);
+            });
+        });
+
+        // IndexedDB für Offline-Speicherung der Hörbücher initialisieren
+        let db;
+        const dbName = 'LarsVomMarsDB';
+        const request = indexedDB.open(dbName, 1);
+
+        request.onerror = function(event) {
+            console.error('Database error:', event.target.error);
+        };
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            // Speicher für Hörbücher erstellen, wenn er noch nicht existiert
+            if (!db.objectStoreNames.contains('audiobooks')) {
+                const store = db.createObjectStore('audiobooks', { keyPath: 'id' });
+                store.createIndex('by_title', 'title', { unique: false });
+                store.createIndex('by_chapter', 'chapter', { unique: false });
+            }
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadImportedAudiobooks();
+        };
+
+        // Funktion zum Importieren von Hörbüchern
+        function importAudiobooks(files) {
+            if (!files.length) return;
+            
+            const feedback = document.getElementById('import-feedback');
+            feedback.className = 'import-feedback';
+            feedback.style.display = 'block';
+            feedback.textContent = 'Import wird durchgeführt...';
+            
+            let filesProcessed = 0;
+            let filesImported = 0;
+
+            Array.from(files).forEach((file, index) => {
+                if (!file.type.startsWith('audio/')) {
+                    filesProcessed++;
+                    checkCompletion();
+                    return;
+                }
+
+                // Datei einlesen
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // In IndexedDB speichern
+                    const transaction = db.transaction(['audiobooks'], 'readwrite');
+                    const store = transaction.objectStore('audiobooks');
+                    
+                    // Kapitel-Nummer aus dem Dateinamen extrahieren (wenn möglich)
+                    let chapter = 0;
+                    const chapterMatch = file.name.match(/\d+/);
+                    if (chapterMatch) {
+                        chapter = parseInt(chapterMatch[0]);
+                    } else {
+                        chapter = index + 1; // Fallback: Indexnummer + 1
+                    }
+                    
+                    const audiobook = {
+                        id: 'chapter_' + chapter,
+                        title: file.name.replace(/\.\w+$/, ''),
+                        chapter: chapter,
+                        data: e.target.result,
+                        type: file.type,
+                        dateAdded: new Date()
+                    };
+                    
+                    const request = store.put(audiobook);
+                    
+                    request.onsuccess = function() {
+                        filesImported++;
+                        filesProcessed++;
+                        checkCompletion();
+                    };
+                    
+                    request.onerror = function(event) {
+                        console.error('Error importing file:', event.target.error);
+                        filesProcessed++;
+                        checkCompletion();
+                    };
+                };
+                
+                reader.onerror = function() {
+                    console.error('Error reading file');
+                    filesProcessed++;
+                    checkCompletion();
+                };
+                
+                reader.readAsArrayBuffer(file);
+            });
+            
+            function checkCompletion() {
+                if (filesProcessed === files.length) {
+                    if (filesImported > 0) {
+                        feedback.className = 'import-feedback import-success';
+                        feedback.textContent = `${filesImported} Hörbuch(er) erfolgreich importiert! Die Bibliothek wird aktualisiert.`;
+                        // Importierte Hörbücher anzeigen
+                        loadImportedAudiobooks();
+                    } else {
+                        feedback.className = 'import-feedback import-error';
+                        feedback.textContent = 'Keine Audiodateien importiert. Bitte überprüfen Sie die ausgewählten Dateien.';
+                    }
+                    
+                    // Feedback nach 5 Sekunden ausblenden
+                    setTimeout(() => {
+                        feedback.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        }
+
+        // Importierte Hörbücher laden und anzeigen
+        function loadImportedAudiobooks() {
+            if (!db) return;
+            
+            const transaction = db.transaction(['audiobooks'], 'readonly');
+            const store = transaction.objectStore('audiobooks');
+            const index = store.index('by_chapter');
+            const request = index.getAll();
+            
+            request.onsuccess = function(event) {
+                const audiobooks = event.target.result;
+                if (audiobooks.length > 0) {
+                    // Kapitel-Liste leeren
+                    const chapterList = document.querySelector('.chapter-list');
+                    chapterList.innerHTML = '';
+                    
+                    // Sortieren nach Kapitelnummer
+                    audiobooks.sort((a, b) => a.chapter - b.chapter);
+                    
+                    // Kapitel zur Liste hinzufügen
+                    audiobooks.forEach(book => {
+                        const chapterItem = document.createElement('div');
+                        chapterItem.className = 'chapter-item';
+                        chapterItem.dataset.chapter = book.chapter;
+                        chapterItem.dataset.id = book.id;
+                        chapterItem.innerHTML = `
+                            <div class="chapter-number">${book.chapter}</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">${book.title}</div>
+                            </div>
+                        `;
+                        
+                        chapterItem.addEventListener('click', function() {
+                            stopAnimations();
+                            playImportedChapter(book.id, book.chapter);
+                        });
+                        
+                        chapterList.appendChild(chapterItem);
+                    });
+                }
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading audiobooks:', event.target.error);
+            };
+        }
+
+        // Importiertes Kapitel abspielen
+        function playImportedChapter(id, number) {
+            // Entferne aktive Markierung von allen Kapiteln
+            document.querySelectorAll('.chapter-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Markiere ausgewähltes Kapitel als aktiv
+            document.querySelector(`[data-id="${id}"]`).classList.add('active');
+
+            // Stoppe vorherige Wiedergabe
+            if (chapterAudio) {
+                chapterAudio.pause();
+                chapterAudio = null;
+            }
+            
+            // Lade das Kapitel aus der Datenbank
+            const transaction = db.transaction(['audiobooks'], 'readonly');
+            const store = transaction.objectStore('audiobooks');
+            const request = store.get(id);
+            
+            request.onsuccess = function(event) {
+                const audiobook = event.target.result;
+                if (audiobook) {
+                    // Zeige Player
+                    const player = document.getElementById('chapterPlayer');
+                    player.style.display = 'block';
+                    
+                    // Aktualisiere "Now Playing"
+                    document.querySelector('.now-playing').textContent = audiobook.title;
+                    document.querySelector('.audio-button').textContent = '▶️';
+                    
+                    // Audio erstellen und abspielen
+                    const blob = new Blob([audiobook.data], { type: audiobook.type });
+                    const url = URL.createObjectURL(blob);
+                    chapterAudio = new Audio(url);
+                    currentChapter = number;
+                    chapterPlaying = false;
+                }
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading audiobook:', event.target.error);
+            };
         }
     </script>
 </body>
