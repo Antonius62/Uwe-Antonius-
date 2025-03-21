@@ -1,0 +1,9 @@
+# Ignore sensitive files
+key.pem
+*.pem
+
+# Ignore system files
+.DS_Store
+
+# Ignore temporary files
+*.tmp
