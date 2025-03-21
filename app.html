@@ -734,6 +734,33 @@
         </div>
     </div>
 
+    <!-- Eltern-Login Modal -->
+    <div class="modal" id="loginModal">
+        <h2>Eltern-Login</h2>
+        <div class="form-group">
+            <label for="parentFirstName">Vorname (Elternteil):</label>
+            <input type="text" id="parentFirstName" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="parentLastName">Nachname (Elternteil):</label>
+            <input type="text" id="parentLastName" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="childFirstName">Vorname (Kind):</label>
+            <input type="text" id="childFirstName" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="childBirthdate">Geburtsdatum (Kind):</label>
+            <input type="date" id="childBirthdate" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="pin">PIN (Standard: 1234):</label>
+            <input type="password" id="pin" class="form-control">
+        </div>
+        <button onclick="verifyLogin()" class="btn-primary">Login</button>
+        <button onclick="closeModal('loginModal')" class="btn-secondary">Abbrechen</button>
+    </div>
+
     <script>
         // Audio-Player initialisieren
         let audioPlayer = null;
@@ -746,17 +773,27 @@
         // Button-Klick-Handler
         function handleButtonClick(type) {
             if (type === 'audiobook') {
-                // Hörbuch-Funktionalität
-                alert('Hörbuch-Funktion ist aktiv!');
+                // Hörbuch-Bibliothek anzeigen
+                document.getElementById('audiobookModal').style.display = 'block';
+                document.getElementById('modalBackground').style.display = 'block';
             } else if (type === 'video') {
-                // Video-Funktionalität
-                alert('Video-Funktion ist aktiv!');
+                // Video-Bibliothek anzeigen
+                document.getElementById('videoModal').style.display = 'block';
+                document.getElementById('modalBackground').style.display = 'block';
             } else if (type === 'music') {
-                // Musik-Funktionalität
-                alert('Musik-Funktion ist aktiv!');
+                // Musik abspielen und Liedtext anzeigen
+                let lyricsContainer = document.querySelector('.lyrics-container');
+                lyricsContainer.innerHTML = '<div class="lyrics-line">Lars vom Mars, fliegt zu den Sternen</div>' +
+                    '<div class="lyrics-line">Lars vom Mars, will alles lernen</div>' +
+                    '<div class="lyrics-line">Lars vom Mars, ist unser Freund</div>' +
+                    '<div class="lyrics-line">Lars vom Mars, kennt jeden Stein</div>';
+                lyricsContainer.classList.add('visible');
+                
+                // Simuliere Musik-Player
+                alert('Musik spielt: Lars vom Mars Song!');
             } else if (type === 'sounds') {
-                // Action-Funktionalität
-                alert('Action-Funktion ist aktiv!');
+                // Quack-Sound abspielen
+                alert('Action Sound: Quack!');
             }
         }
 
@@ -935,13 +972,28 @@
         }
 
         function showLogin() {
-            // Einfacher Eltern-Bereich mit Passwort-Abfrage
-            const password = prompt('Bitte PIN eingeben:');
-            
-            if (password === '1234') { // Einfaches Passwort für den Demo-Zweck
-                alert('Willkommen im Elternbereich! Hier können Sie Einstellungen vornehmen.');
-            } else if (password !== null) { // Wenn nicht abgebrochen wurde
-                alert('PIN nicht korrekt!');
+            document.getElementById('loginModal').style.display = 'block';
+            document.getElementById('modalBackground').style.display = 'block';
+        }
+
+        function verifyLogin() {
+            const pin = document.getElementById('pin').value;
+            const parentFirstName = document.getElementById('parentFirstName').value;
+            const parentLastName = document.getElementById('parentLastName').value;
+            const childFirstName = document.getElementById('childFirstName').value;
+            const childBirthdate = document.getElementById('childBirthdate').value;
+
+            if (pin === '1234') {
+                // Speichere die Eltern- und Kind-Informationen
+                localStorage.setItem('parentFirstName', parentFirstName);
+                localStorage.setItem('parentLastName', parentLastName);
+                localStorage.setItem('childFirstName', childFirstName);
+                localStorage.setItem('childBirthdate', childBirthdate);
+                
+                alert('Login erfolgreich! Willkommen ' + parentFirstName + ' ' + parentLastName);
+                closeModal('loginModal');
+            } else {
+                alert('Falscher PIN! Bitte versuchen Sie es erneut.');
             }
         }
 
@@ -949,6 +1001,7 @@
         document.getElementById('modalBackground').onclick = function() {
             document.getElementById('audiobookModal').style.display = 'none';
             document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('loginModal').style.display = 'none';
             document.getElementById('modalBackground').style.display = 'none';
         };
 
@@ -1037,6 +1090,7 @@
         window.onload = function() {
             document.getElementById('audiobookModal').style.display = 'none';
             document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('loginModal').style.display = 'none';
             document.getElementById('modalBackground').style.display = 'none';
         };
 
