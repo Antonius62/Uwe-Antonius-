@@ -12,7 +12,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-image: url('mars_background.png');
+            background-image: url('mars_background.jpg');
             background-size: cover;
             background-position: center;
             color: white;
@@ -745,16 +745,18 @@
 
         // Button-Klick-Handler
         function handleButtonClick(type) {
-            if (type === 'music') {
-                toggleMusic();
-            } else if (type === 'sounds') {
-                playQuackSound();
-            } else if (type === 'audiobook') {
-                document.getElementById('audiobookModal').style.display = 'block';
-                document.getElementById('modalBackground').style.display = 'block';
+            if (type === 'audiobook') {
+                // Hörbuch-Funktionalität
+                alert('Hörbuch-Funktion ist aktiv!');
             } else if (type === 'video') {
-                document.getElementById('videoModal').style.display = 'block';
-                document.getElementById('modalBackground').style.display = 'block';
+                // Video-Funktionalität
+                alert('Video-Funktion ist aktiv!');
+            } else if (type === 'music') {
+                // Musik-Funktionalität
+                alert('Musik-Funktion ist aktiv!');
+            } else if (type === 'sounds') {
+                // Action-Funktionalität
+                alert('Action-Funktion ist aktiv!');
             }
         }
 
