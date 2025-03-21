@@ -629,10 +629,15 @@
         #audiobook-file-input {
             display: none;
         }
+        
+        #video-file-input {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- Eltern-Login Button entfernt - Version 2025-03-20 -->
+    <!-- Eltern-Login Button hinzugefügt -->
+    <button class="button login-button" onclick="showLogin()">Eltern<br>Login</button>
     <div class="modal-background" id="modalBackground"></div>
     <h1>WILLKOMMEN<br>IN DER WELT VON LARS VOM MARS</h1>
     
@@ -695,14 +700,34 @@
     </div>
 
     <div class="content-modal" id="videoModal">
+        <div class="bubble-shine"></div>
         <button class="close-button" onclick="closeModal('videoModal')">×</button>
-        <h2 class="modal-title">🎬 Lars vom Mars - Videoabenteuer</h2>
-        <div class="chapter-list">
-            <div class="chapter-item">
-                <div class="chapter-number">1</div>
-                <div class="chapter-info">
-                    <div class="chapter-title">Lars' erste Reise</div>
-                    <div class="chapter-description">Ein spannendes Abenteuer beginnt, als Lars sein Raumschiff startet.</div>
+        <div class="modal-content">
+            <h2 class="modal-title">🎬 Lars vom Mars - Videoabenteuer</h2>
+            
+            <!-- Import Button hinzugefügt -->
+            <button class="import-button" onclick="document.getElementById('video-file-input').click()">
+                <i>📂</i> Video importieren
+            </button>
+            <input type="file" id="video-file-input" accept="video/*" multiple onchange="importVideos(this.files)">
+            <div id="video-import-feedback" class="import-feedback"></div>
+            
+            <div class="video-player" id="videoPlayer">
+                <div class="now-playing">Video wird geladen...</div>
+                <video controls style="display: none; width: 100%; max-height: 300px;"></video>
+                <div class="video-controls">
+                    <button class="video-button" onclick="toggleVideo()">▶️</button>
+                    <button class="video-button" onclick="stopVideo()">⏹️</button>
+                </div>
+            </div>
+
+            <div class="chapter-list">
+                <div class="chapter-item" data-video="1" onclick="playVideo(1)">
+                    <div class="chapter-number">1</div>
+                    <div class="chapter-info">
+                        <div class="chapter-title">Lars' erste Reise</div>
+                        <div class="chapter-description">Ein spannendes Abenteuer beginnt, als Lars sein Raumschiff startet.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -754,6 +779,15 @@
         function toggleMusic() {
             if (!audioPlayer) {
                 audioPlayer = new Audio('lars_vom_mars_song.wav');
+                // Event-Listener für das Ende des Songs hinzufügen
+                audioPlayer.addEventListener('ended', function() {
+                    isPlaying = false;
+                    document.querySelector('.lyrics-container').textContent = '';
+                    document.querySelector('.lyrics-container').classList.remove('visible');
+                    if (window.timeouts) {
+                        window.timeouts.forEach(timeout => clearTimeout(timeout));
+                    }
+                });
             }
             
             if (isPlaying) {
@@ -768,7 +802,7 @@
                 }
             } else {
                 audioPlayer.currentTime = 0; // Immer vom Start beginnen
-                audioPlayer.play();
+                audioPlayer.play().catch(error => console.error('Fehler beim Abspielen:', error));
                 isPlaying = true;
                 window.timeouts = [];  // Array für unsere Timeouts
 
@@ -898,7 +932,14 @@
         }
 
         function showLogin() {
-            alert('Diese Funktion steht derzeit nicht zur Verfügung');
+            // Einfacher Eltern-Bereich mit Passwort-Abfrage
+            const password = prompt('Bitte PIN eingeben:');
+            
+            if (password === '1234') { // Einfaches Passwort für den Demo-Zweck
+                alert('Willkommen im Elternbereich! Hier können Sie Einstellungen vornehmen.');
+            } else if (password !== null) { // Wenn nicht abgebrochen wurde
+                alert('PIN nicht korrekt!');
+            }
         }
 
         // Klick außerhalb schließt Modal
@@ -1020,9 +1061,17 @@
 
         request.onupgradeneeded = function(event) {
             db = event.target.result;
+            
             // Speicher für Hörbücher erstellen, wenn er noch nicht existiert
             if (!db.objectStoreNames.contains('audiobooks')) {
                 const store = db.createObjectStore('audiobooks', { keyPath: 'id' });
+                store.createIndex('by_title', 'title', { unique: false });
+                store.createIndex('by_chapter', 'chapter', { unique: false });
+            }
+            
+            // Speicher für Videos erstellen, wenn er noch nicht existiert
+            if (!db.objectStoreNames.contains('videos')) {
+                const store = db.createObjectStore('videos', { keyPath: 'id' });
                 store.createIndex('by_title', 'title', { unique: false });
                 store.createIndex('by_chapter', 'chapter', { unique: false });
             }
@@ -1031,6 +1080,7 @@
         request.onsuccess = function(event) {
             db = event.target.result;
             loadImportedAudiobooks();
+            loadImportedVideos(); // Auch Videos laden
         };
 
         // Funktion zum Importieren von Hörbüchern
@@ -1211,6 +1261,250 @@
             
             request.onerror = function(event) {
                 console.error('Error loading audiobook:', event.target.error);
+            };
+        }
+
+        // Video-Player
+        let videoPlayer = null;
+        let currentVideo = null;
+        let videoPlaying = false;
+
+        function playVideo(number) {
+            // Entferne aktive Markierung von allen Kapiteln
+            document.querySelectorAll('.chapter-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Markiere ausgewähltes Kapitel als aktiv
+            document.querySelector(`.chapter-item:nth-child(${number})`).classList.add('active');
+
+            // Stoppe vorherige Wiedergabe
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+                videoPlaying = false;
+                document.querySelector('.video-button').textContent = '▶️';
+            }
+
+            // Zeige Player
+            const player = document.getElementById('videoPlayer');
+            player.style.display = 'block';
+
+            // Aktualisiere "Now Playing"
+            const chapterTitle = document.querySelector(`.chapter-item:nth-child(${number}) .chapter-title`).textContent;
+            document.querySelector('.now-playing').textContent = `${chapterTitle}`;
+
+            // Lade Kapitel
+            videoPlayer = document.querySelector('video');
+            videoPlayer.src = `video${number}.mp4`;
+            currentVideo = number;
+        }
+
+        function toggleVideo() {
+            if (!videoPlayer) return;
+
+            const playButton = document.querySelector('.video-button');
+            if (videoPlaying) {
+                videoPlayer.pause();
+                videoPlaying = false;
+                playButton.textContent = '▶️';
+            } else {
+                // Versuche das Video zu laden und abzuspielen
+                videoPlayer.load();  // Lade das Video neu
+                videoPlayer.play().catch(error => console.error('Fehler beim Abspielen:', error));
+                videoPlaying = true;
+                playButton.textContent = '⏸️';
+            }
+        }
+
+        function stopVideo() {
+            if (!videoPlayer) return;
+            
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+            videoPlaying = false;
+            document.querySelector('.video-button').textContent = '▶️';
+        }
+
+        // Funktion zum Importieren von Videos
+        function importVideos(files) {
+            if (!files.length) return;
+            
+            const feedback = document.getElementById('video-import-feedback');
+            feedback.className = 'import-feedback';
+            feedback.style.display = 'block';
+            feedback.textContent = 'Import wird durchgeführt...';
+            
+            let filesProcessed = 0;
+            let filesImported = 0;
+
+            Array.from(files).forEach((file, index) => {
+                if (!file.type.startsWith('video/')) {
+                    filesProcessed++;
+                    checkCompletion();
+                    return;
+                }
+
+                // Datei einlesen
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // In IndexedDB speichern
+                    const transaction = db.transaction(['videos'], 'readwrite');
+                    const store = transaction.objectStore('videos');
+                    
+                    // Kapitel-Nummer aus dem Dateinamen extrahieren (wenn möglich)
+                    let chapter = 0;
+                    const chapterMatch = file.name.match(/\d+/);
+                    if (chapterMatch) {
+                        chapter = parseInt(chapterMatch[0]);
+                    } else {
+                        chapter = index + 1; // Fallback: Indexnummer + 1
+                    }
+                    
+                    const video = {
+                        id: 'video_' + chapter,
+                        title: file.name.replace(/\.\w+$/, ''),
+                        chapter: chapter,
+                        data: e.target.result,
+                        type: file.type,
+                        dateAdded: new Date()
+                    };
+                    
+                    const request = store.put(video);
+                    
+                    request.onsuccess = function() {
+                        filesImported++;
+                        filesProcessed++;
+                        checkCompletion();
+                    };
+                    
+                    request.onerror = function(event) {
+                        console.error('Error importing file:', event.target.error);
+                        filesProcessed++;
+                        checkCompletion();
+                    };
+                };
+                
+                reader.onerror = function() {
+                    console.error('Error reading file');
+                    filesProcessed++;
+                    checkCompletion();
+                };
+                
+                reader.readAsArrayBuffer(file);
+            });
+            
+            function checkCompletion() {
+                if (filesProcessed === files.length) {
+                    if (filesImported > 0) {
+                        feedback.className = 'import-feedback import-success';
+                        feedback.textContent = `${filesImported} Video(s) erfolgreich importiert! Die Bibliothek wird aktualisiert.`;
+                        // Importierte Videos anzeigen
+                        loadImportedVideos();
+                    } else {
+                        feedback.className = 'import-feedback import-error';
+                        feedback.textContent = 'Keine Videodateien importiert. Bitte überprüfen Sie die ausgewählten Dateien.';
+                    }
+                    
+                    // Feedback nach 5 Sekunden ausblenden
+                    setTimeout(() => {
+                        feedback.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        }
+
+        // Importierte Videos laden und anzeigen
+        function loadImportedVideos() {
+            if (!db) return;
+            
+            const transaction = db.transaction(['videos'], 'readonly');
+            const store = transaction.objectStore('videos');
+            const index = store.index('by_chapter');
+            const request = index.getAll();
+            
+            request.onsuccess = function(event) {
+                const videos = event.target.result;
+                if (videos.length > 0) {
+                    // Kapitel-Liste leeren
+                    const chapterList = document.querySelector('.chapter-list');
+                    chapterList.innerHTML = '';
+                    
+                    // Sortieren nach Kapitelnummer
+                    videos.sort((a, b) => a.chapter - b.chapter);
+                    
+                    // Kapitel zur Liste hinzufügen
+                    videos.forEach(video => {
+                        const chapterItem = document.createElement('div');
+                        chapterItem.className = 'chapter-item';
+                        chapterItem.dataset.video = video.chapter;
+                        chapterItem.dataset.id = video.id;
+                        chapterItem.innerHTML = `
+                            <div class="chapter-number">${video.chapter}</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">${video.title}</div>
+                            </div>
+                        `;
+                        
+                        chapterItem.addEventListener('click', function() {
+                            stopAnimations();
+                            playImportedVideo(video.id, video.chapter);
+                        });
+                        
+                        chapterList.appendChild(chapterItem);
+                    });
+                }
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading videos:', event.target.error);
+            };
+        }
+
+        // Importiertes Video abspielen
+        function playImportedVideo(id, number) {
+            // Entferne aktive Markierung von allen Kapiteln
+            document.querySelectorAll('.chapter-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Markiere ausgewähltes Kapitel als aktiv
+            document.querySelector(`[data-id="${id}"]`).classList.add('active');
+
+            // Stoppe vorherige Wiedergabe
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer = null;
+            }
+            
+            // Lade das Video aus der Datenbank
+            const transaction = db.transaction(['videos'], 'readonly');
+            const store = transaction.objectStore('videos');
+            const request = store.get(id);
+            
+            request.onsuccess = function(event) {
+                const video = event.target.result;
+                if (video) {
+                    // Zeige Player
+                    const player = document.getElementById('videoPlayer');
+                    player.style.display = 'block';
+                    
+                    // Aktualisiere "Now Playing"
+                    document.querySelector('.now-playing').textContent = video.title;
+                    document.querySelector('.video-button').textContent = '▶️';
+                    
+                    // Video erstellen und abspielen
+                    const blob = new Blob([video.data], { type: video.type });
+                    const url = URL.createObjectURL(blob);
+                    videoPlayer = document.querySelector('video');
+                    videoPlayer.src = url;
+                    currentVideo = number;
+                    videoPlaying = false;
+                }
+            };
+            
+            request.onerror = function(event) {
+                console.error('Error loading video:', event.target.error);
             };
         }
     </script>
