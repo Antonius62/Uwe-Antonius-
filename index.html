@@ -2,10 +2,93 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=app.html">
-    <title>Weiterleitung zu Lars vom Mars</title>
+    <title>Lars vom Mars</title>
+    <!-- Version: 2025-03-21 - Aktuelle Version -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url('mars_background.png');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px black;
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255,255,255,0.5);
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .login-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,192,203,0.6) !important;
+            width: 100px !important;
+            height: 100px !important;
+            font-size: 16px !important;  
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 <body>
-    <p>Wenn du nicht automatisch weitergeleitet wirst, <a href="app.html">klicke hier</a>.</p>
+    <!-- Eltern-Login Button hinzugefu00fcgt -->
+    <button class="button login-button" onclick="showLogin()">Eltern<br>Login</button>
+    <div class="modal-background" id="modalBackground"></div>
+    <h1>WILLKOMMEN<br>IN DER WELT VON LARS VOM MARS</h1>
+    
+    <div class="lyrics-container">
+        <!-- Hier kommen die Liedtexte -->
+    </div>
+    
+    <div class="buttons">
+        <button class="button audiobook" onclick="handleButtonClick('audiobook')">Hu00f6rbuch</button>
+        <button class="button video" onclick="handleButtonClick('video')">Video</button>
+        <button class="button music" onclick="handleButtonClick('music')">Musik</button>
+        <button class="button sounds" onclick="handleButtonClick('sounds')">Action</button>  
+    </div>
+
+    <script>
+        // Information
+        alert("Lars vom Mars wurde aktualisiert! Alle Funktionen sind jetzt verfu00fcgbar.");
+        
+        // Weiterleitung zur vollstu00e4ndigen App
+        window.location.href = "app.html";
+    </script>
 </body>
 </html>
